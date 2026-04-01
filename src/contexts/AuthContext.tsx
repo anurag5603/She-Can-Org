@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
+import API_BASE from '../config';
 
 const ADMIN_EMAIL = 'contact.manager5603@gmail.com';
 
@@ -43,7 +44,7 @@ function mapUser(supaUser: User): AuthUser {
 
 async function registerUserOnServer(user: AuthUser, token: string) {
   try {
-    await fetch('/api/auth/register', {
+    await fetch(`${API_BASE}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -79,12 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       handleSession(session);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         handleSession(session);

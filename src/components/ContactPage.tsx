@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Send, Clock, MessageCircle, CheckCircle, Heart } from 'lucide-react';
+import API_BASE from '../config';
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ export const ContactPage: React.FC = () => {
     setErrorMsg('');
 
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

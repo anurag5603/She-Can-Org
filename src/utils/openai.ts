@@ -1,4 +1,5 @@
 import { QuestionnaireData, DietPlan } from '../types';
+import API_BASE from '../config';
 
 export async function generateDietPlan(data: QuestionnaireData): Promise<DietPlan> {
   const prompt = `
@@ -75,8 +76,7 @@ export async function generateDietPlan(data: QuestionnaireData): Promise<DietPla
   let response: Response;
 
   try {
-    // Calls your local backend — API key never touches the browser
-    response = await fetch('/api/generate-plan', {
+    response = await fetch(`${API_BASE}/api/generate-plan`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

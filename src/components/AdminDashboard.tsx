@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import API_BASE from '../config';
 import {
   Inbox,
   Users as UsersIcon,
@@ -46,13 +47,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
   const { session } = useAuth();
   const [activeTab, setActiveTab] = useState<'users' | 'messages'>('users');
 
-  // Users state
   const [users, setUsers] = useState<RegisteredUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState('');
   const [userSearch, setUserSearch] = useState('');
 
-  // Messages state
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [messagesLoading, setMessagesLoading] = useState(true);
@@ -67,12 +66,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     Authorization: `Bearer ${session?.access_token || ''}`,
   }), [session]);
 
-  // ── FETCH USERS ──
   const fetchUsers = useCallback(async () => {
     setUsersLoading(true);
     setUsersError('');
     try {
-      const res = await fetch('/api/admin/users', { headers: authHeaders() });
+      const res = await fetch(`${API_BASE}/api/admin/users`, { headers: authHeaders() });
       if (res.status === 401 || res.status === 403) throw new Error('Unauthorized');
       if (!res.ok) throw new Error('Failed to fetch users');
       const data = await res.json();
@@ -84,13 +82,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     }
   }, [authHeaders]);
 
-  // ── FETCH MESSAGES ──
   const fetchMessages = useCallback(async (showRefresh = false) => {
     if (showRefresh) setIsRefreshing(true);
     else setMessagesLoading(true);
     setMessagesError('');
     try {
-      const res = await fetch('/api/messages', { headers: authHeaders() });
+      const res = await fetch(`${API_BASE}/api/messages`, { headers: authHeaders() });
       if (res.status === 401 || res.status === 403) throw new Error('Unauthorized');
       if (!res.ok) throw new Error('Failed to fetch messages');
       const data = await res.json();
@@ -110,19 +107,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`/api/messages/${id}`, { method: 'PATCH', headers: authHeaders() });
+      await fetch(`${API_BASE}/api/messages/${id}`, { method: 'PATCH', headers: authHeaders() });
       setMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
       if (selectedMessage?.id === id) setSelectedMessage(prev => prev ? { ...prev, read: true } : null);
-    } catch {}
+    } catch { }
   };
 
   const deleteMessage = async (id: number) => {
     try {
-      await fetch(`/api/messages/${id}`, { method: 'DELETE', headers: authHeaders() });
+      await fetch(`${API_BASE}/api/messages/${id}`, { method: 'DELETE', headers: authHeaders() });
       setMessages(prev => prev.filter(m => m.id !== id));
       if (selectedMessage?.id === id) setSelectedMessage(null);
       setDeleteConfirm(null);
-    } catch {}
+    } catch { }
   };
 
   const handleSelectMessage = (msg: Message) => {
@@ -130,7 +127,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     if (!msg.read) markAsRead(msg.id);
   };
 
-  // ── HELPERS ──
   const formatDate = (ts: string) => {
     const d = new Date(ts);
     const now = new Date();
@@ -180,7 +176,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100">
-      {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -200,7 +195,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center">
@@ -233,27 +227,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex border-b border-gray-200 mb-6">
           <button
             onClick={() => setActiveTab('users')}
-            className={`flex items-center px-6 py-3 font-semibold text-sm border-b-2 transition-all -mb-px ${
-              activeTab === 'users'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
+            className={`flex items-center px-6 py-3 font-semibold text-sm border-b-2 transition-all -mb-px ${activeTab === 'users' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
           >
             <UsersIcon className="w-4 h-4 mr-2" />
             Users ({users.length})
           </button>
           <button
             onClick={() => setActiveTab('messages')}
-            className={`flex items-center px-6 py-3 font-semibold text-sm border-b-2 transition-all -mb-px ${
-              activeTab === 'messages'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
+            className={`flex items-center px-6 py-3 font-semibold text-sm border-b-2 transition-all -mb-px ${activeTab === 'messages' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
           >
             <Inbox className="w-4 h-4 mr-2" />
             Messages ({messages.length})
@@ -264,10 +251,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* Tab Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         {activeTab === 'users' ? (
-          /* ── USERS TAB ── */
           <div>
             <div className="mb-4">
               <div className="relative max-w-md">
@@ -339,9 +324,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             )}
           </div>
         ) : (
-          /* ── MESSAGES TAB ── */
           <div>
-            {/* Search + Filter */}
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -360,9 +343,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                     <button
                       key={s}
                       onClick={() => setMsgFilter(s)}
-                      className={`px-4 py-2.5 text-sm font-medium transition-all capitalize ${
-                        msgFilter === s ? 'bg-indigo-500 text-white' : 'text-gray-600 hover:bg-gray-50'
-                      }`}
+                      className={`px-4 py-2.5 text-sm font-medium transition-all capitalize ${msgFilter === s ? 'bg-indigo-500 text-white' : 'text-gray-600 hover:bg-gray-50'
+                        }`}
                     >{s}</button>
                   ))}
                 </div>
@@ -397,19 +379,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                {/* Message List */}
                 <div className="lg:col-span-2 space-y-2">
                   {filteredMessages.map(msg => (
                     <button
                       key={msg.id}
                       onClick={() => handleSelectMessage(msg)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all hover:shadow-md ${
-                        selectedMessage?.id === msg.id
-                          ? 'bg-indigo-50 border-indigo-300 shadow-md'
-                          : msg.read
+                      className={`w-full text-left p-4 rounded-xl border transition-all hover:shadow-md ${selectedMessage?.id === msg.id
+                        ? 'bg-indigo-50 border-indigo-300 shadow-md'
+                        : msg.read
                           ? 'bg-white border-gray-200 hover:border-gray-300'
                           : 'bg-white border-l-4 border-l-indigo-500 border-gray-200 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center">
@@ -426,7 +406,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
                   ))}
                 </div>
 
-                {/* Message Detail */}
                 <div className="lg:col-span-3">
                   {selectedMessage ? (
                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
