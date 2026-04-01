@@ -16,9 +16,9 @@ const USERS_FILE = path.join(__dirname, 'users.json');
 const app = express();
 app.use(express.json());
 
-// Allow requests from your Vite dev server
+// Allow requests from your Vite dev server and production
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:4173'],
+  origin: ['http://localhost:5173', 'http://localhost:4173', 'https://nutriplan-ai-amber.vercel.app'],
 }));
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -27,7 +27,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!GROQ_API_KEY) {
-  console.error('ERROR: GROQ_API_KEY is not set in your .env file');
+  console.error('ERROR: GROQ_API_KEY is not set');
   process.exit(1);
 }
 
