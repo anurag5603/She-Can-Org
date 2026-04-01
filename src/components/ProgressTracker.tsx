@@ -114,6 +114,13 @@ export const ProgressTracker: React.FC<{ onBack: () => void }> = ({ onBack }) =>
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
             fetchLogs();
+            setForm({
+                weight: '',
+                water_intake: 0,
+                waist: '',
+                chest: '',
+                hips: '',
+            });
         }
         setSaving(false);
     };
@@ -282,8 +289,8 @@ export const ProgressTracker: React.FC<{ onBack: () => void }> = ({ onBack }) =>
                                         key={i}
                                         onClick={() => setForm(f => ({ ...f, water_intake: i + 1 }))}
                                         className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all ${i < form.water_intake
-                                                ? 'bg-cyan-400 border-cyan-400 text-white'
-                                                : 'bg-gray-50 border-gray-200 text-gray-400'
+                                            ? 'bg-cyan-400 border-cyan-400 text-white'
+                                            : 'bg-gray-50 border-gray-200 text-gray-400'
                                             }`}
                                     >
                                         <Droplets className="w-4 h-4" />
