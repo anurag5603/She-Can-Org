@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Heart, Home, LogOut, Shield, ChevronDown } from 'lucide-react';
+import { Heart, Home, LogOut, Shield, ChevronDown, TrendingUp } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface NavbarProps {
@@ -8,6 +8,7 @@ interface NavbarProps {
   onFeaturesClick?: () => void;
   onHowItWorksClick?: () => void;
   onAdminClick?: () => void;
+  onProgressClick?: () => void;
   onLoginClick?: () => void;
 }
 
@@ -17,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onFeaturesClick,
   onHowItWorksClick,
   onAdminClick,
+  onProgressClick,
   onLoginClick,
 }) => {
   const { user, signOut } = useAuth();
@@ -80,7 +82,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
 
-            {/* Admin Dashboard Link (admin only) */}
+            {/* Progress Tracker (logged in users) */}
+            {user && onProgressClick && (
+              <button
+                onClick={onProgressClick}
+                className="hidden sm:flex items-center px-3 py-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all font-medium text-sm"
+              >
+                <TrendingUp className="w-4 h-4 mr-1.5" />
+                Progress
+              </button>
+            )}
+
+            {/* Admin Link (admin only) */}
             {user?.isAdmin && onAdminClick && (
               <button
                 onClick={onAdminClick}
@@ -128,6 +141,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                         </span>
                       )}
                     </div>
+
+                    {/* Progress in dropdown (mobile) */}
+                    {onProgressClick && (
+                      <button
+                        onClick={() => { setShowDropdown(false); onProgressClick(); }}
+                        className="w-full flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors sm:hidden"
+                      >
+                        <TrendingUp className="w-4 h-4 mr-3 text-emerald-500" />
+                        Progress Tracker
+                      </button>
+                    )}
 
                     {user.isAdmin && onAdminClick && (
                       <button

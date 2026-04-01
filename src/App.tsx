@@ -8,13 +8,14 @@ import { ContactPage } from './components/ContactPage';
 import { DisclaimerPage } from './components/DisclaimerPage';
 import { LoginPage } from './components/LoginPage';
 import { AdminDashboard } from './components/AdminDashboard';
+import { ProgressTracker } from './components/ProgressTracker';
 import { Questionnaire } from './components/Questionnaire';
 import { DietPlanDisplay } from './components/DietPlanDisplay';
 import { generateDietPlan } from './utils/openai';
 import { QuestionnaireData, DietPlan } from './types';
 import { Heart, Sparkles, Users, Shield } from 'lucide-react';
 
-type AppState = 'landing' | 'features' | 'how-it-works' | 'questionnaire' | 'plan' | 'contact' | 'disclaimer' | 'login' | 'admin';
+type AppState = 'landing' | 'features' | 'how-it-works' | 'questionnaire' | 'plan' | 'contact' | 'disclaimer' | 'login' | 'admin' | 'progress';
 
 function AppContent() {
   const { user, isLoading: authLoading } = useAuth();
@@ -25,7 +26,6 @@ function AppContent() {
 
   const handleStartQuestionnaire = () => {
     if (!user) {
-      // Not logged in — redirect to login first
       setCurrentState('login');
       return;
     }
@@ -69,7 +69,6 @@ function AppContent() {
     }, 100);
   };
 
-  // Show loading while checking auth state
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
@@ -81,12 +80,12 @@ function AppContent() {
     );
   }
 
-  // Common navbar props
   const navProps = {
     onHomeClick: handleRestart,
     onFeaturesClick: () => handleNavigation('features'),
     onHowItWorksClick: () => handleNavigation('how-it-works'),
     onAdminClick: user?.isAdmin ? () => handleNavigation('admin') : undefined,
+    onProgressClick: user ? () => handleNavigation('progress') : undefined,
     onLoginClick: () => handleNavigation('login'),
   };
 
@@ -99,9 +98,8 @@ function AppContent() {
     onDisclaimerClick: () => handleNavigation('disclaimer'),
   };
 
-  // ── LOGIN PAGE ──
+  // ── LOGIN ──
   if (currentState === 'login') {
-    // If user just signed in, redirect to questionnaire
     if (user) {
       setCurrentState('questionnaire');
       return null;
@@ -109,7 +107,7 @@ function AppContent() {
     return <LoginPage onBack={handleRestart} />;
   }
 
-  // ── ADMIN DASHBOARD (admin only) ──
+  // ── ADMIN ──
   if (currentState === 'admin') {
     if (!user?.isAdmin) {
       setCurrentState('landing');
@@ -125,7 +123,23 @@ function AppContent() {
     );
   }
 
-  // ── QUESTIONNAIRE (requires auth) ──
+  // ── PROGRESS TRACKER ──
+  if (currentState === 'progress') {
+    if (!user) {
+      setCurrentState('login');
+      return null;
+    }
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar {...navProps} showHomeButton={true} />
+        <div className="flex-1">
+          <ProgressTracker onBack={handleRestart} />
+        </div>
+      </div>
+    );
+  }
+
+  // ── QUESTIONNAIRE ──
   if (currentState === 'questionnaire') {
     if (!user) {
       setCurrentState('login');
@@ -170,7 +184,7 @@ function AppContent() {
     );
   }
 
-  // ── PLAN DISPLAY (requires auth) ──
+  // ── PLAN DISPLAY ──
   if (currentState === 'plan' && dietPlan && userData) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -218,7 +232,6 @@ function AppContent() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
       <Navbar {...navProps} />
 
-      {/* Hero Section */}
       <div className="relative overflow-hidden flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
@@ -252,7 +265,6 @@ function AppContent() {
               </div>
             </div>
 
-            {/* Trust Indicators */}
             <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-gray-600 mb-16">
               <div className="flex items-center">
                 <Users className="w-5 h-5 mr-2 text-blue-500" />
@@ -271,7 +283,6 @@ function AppContent() {
         </div>
       </div>
 
-      {/* Features Section */}
       <div className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -317,7 +328,6 @@ function AppContent() {
         </div>
       </div>
 
-      {/* CTA Section */}
       <div className="py-24 bg-gradient-to-r from-emerald-500 to-blue-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
