@@ -8,7 +8,6 @@ import {
     Ruler,
     Plus,
     TrendingDown,
-    TrendingUp,
     Minus,
     CheckCircle,
     Calendar,
@@ -45,9 +44,8 @@ interface TodayForm {
 const WATER_GOAL = 8;
 
 export const ProgressTracker: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-    const { user, session } = useAuth();
+    const { user } = useAuth();
     const [logs, setLogs] = useState<ProgressLog[]>([]);
-    const [todayLog, setTodayLog] = useState<ProgressLog | null>(null);
     const [form, setForm] = useState<TodayForm>({
         weight: '',
         water_intake: 0,
@@ -76,7 +74,7 @@ export const ProgressTracker: React.FC<{ onBack: () => void }> = ({ onBack }) =>
             setLogs(data);
             const todayEntry = data.find(l => l.date === today);
             if (todayEntry) {
-                setTodayLog(todayEntry);
+                // Populate the form with today's existing data
                 setForm({
                     weight: todayEntry.weight?.toString() || '',
                     water_intake: todayEntry.water_intake || 0,
@@ -113,14 +111,17 @@ export const ProgressTracker: React.FC<{ onBack: () => void }> = ({ onBack }) =>
         if (!error) {
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
-            fetchLogs();
-            setForm({
-                weight: '',
-                water_intake: 0,
-                waist: '',
-                chest: '',
-                hips: '',
-            });
+
+            // Bug fix #3: Re-fetch logs but DO NOT reset the form.
+            // The user just saved — keep their values visible so they can
+            // see what was saved and make further edits without re-typing.
+            const { data } = await supabase
+                .from('progress_logs')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('date', { ascending: false })
+                .limit(30);
+            if (data) setLogs(data);
         }
         setSaving(false);
     };

@@ -1,7 +1,12 @@
 import React from 'react';
-import { Heart, Brain, Shield, Download, Mail, Clock, Users, Sparkles, CheckCircle, Target, Utensils, Activity } from 'lucide-react';
+import { Heart, Brain, Shield, Download, Clock, Users, Sparkles, CheckCircle, Target, Utensils, Activity } from 'lucide-react';
 
-export const FeaturesPage: React.FC = () => {
+// Bug fix #2: Accept onStartAssessment so the CTA button actually navigates
+interface FeaturesPageProps {
+  onStartAssessment?: () => void;
+}
+
+export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onStartAssessment }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
       {/* Hero Section */}
@@ -152,7 +157,6 @@ export const FeaturesPage: React.FC = () => {
               </ul>
             </div>
 
-
             <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
               <Clock className="w-12 h-12 text-green-500 mb-6" />
               <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Assessment</h3>
@@ -221,7 +225,7 @@ export const FeaturesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* CTA Section */}
+      {/* CTA Section — Bug fix #2: onClick now wired up */}
       <div className="py-16 bg-gradient-to-r from-emerald-500 to-blue-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
@@ -230,7 +234,10 @@ export const FeaturesPage: React.FC = () => {
           <p className="text-xl text-emerald-100 mb-8">
             Start your personalized nutrition journey today with our comprehensive AI-powered platform.
           </p>
-          <button className="px-8 py-4 bg-white text-emerald-600 text-lg font-semibold rounded-2xl hover:bg-gray-50 transition-all hover:scale-105 shadow-xl">
+          <button
+            onClick={onStartAssessment}
+            className="px-8 py-4 bg-white text-emerald-600 text-lg font-semibold rounded-2xl hover:bg-gray-50 transition-all hover:scale-105 shadow-xl"
+          >
             Start Your Assessment
           </button>
         </div>

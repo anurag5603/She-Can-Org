@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -23,6 +23,28 @@ function AppContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [dietPlan, setDietPlan] = useState<DietPlan | null>(null);
   const [userData, setUserData] = useState<QuestionnaireData | null>(null);
+
+  // ── Bug fix #1: Replace all in-render setCurrentState calls with useEffect ──
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (currentState === 'login' && user) {
+      setCurrentState('questionnaire');
+      return;
+    }
+    if (currentState === 'admin' && !user?.isAdmin) {
+      setCurrentState('landing');
+      return;
+    }
+    if (currentState === 'progress' && !user) {
+      setCurrentState('login');
+      return;
+    }
+    if (currentState === 'questionnaire' && !user) {
+      setCurrentState('login');
+      return;
+    }
+  }, [currentState, user, authLoading]);
 
   const handleStartQuestionnaire = () => {
     if (!user) {
@@ -99,20 +121,16 @@ function AppContent() {
   };
 
   // ── LOGIN ──
+  // Guard: if user is already signed in, the useEffect above will redirect away.
+  // Render LoginPage only when user is null.
   if (currentState === 'login') {
-    if (user) {
-      setCurrentState('questionnaire');
-      return null;
-    }
+    if (user) return null; // useEffect will redirect
     return <LoginPage onBack={handleRestart} />;
   }
 
   // ── ADMIN ──
   if (currentState === 'admin') {
-    if (!user?.isAdmin) {
-      setCurrentState('landing');
-      return null;
-    }
+    if (!user?.isAdmin) return null; // useEffect will redirect
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar {...navProps} showHomeButton={true} />
@@ -125,10 +143,7 @@ function AppContent() {
 
   // ── PROGRESS TRACKER ──
   if (currentState === 'progress') {
-    if (!user) {
-      setCurrentState('login');
-      return null;
-    }
+    if (!user) return null; // useEffect will redirect
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar {...navProps} showHomeButton={true} />
@@ -141,10 +156,7 @@ function AppContent() {
 
   // ── QUESTIONNAIRE ──
   if (currentState === 'questionnaire') {
-    if (!user) {
-      setCurrentState('login');
-      return null;
-    }
+    if (!user) return null; // useEffect will redirect
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar {...navProps} showHomeButton={true} />
@@ -164,7 +176,8 @@ function AppContent() {
       <div className="min-h-screen flex flex-col">
         <Navbar {...navProps} showHomeButton={true} />
         <div className="flex-1">
-          <FeaturesPage />
+          {/* Bug fix #2: pass handleStartQuestionnaire so CTA button works */}
+          <FeaturesPage onStartAssessment={handleStartQuestionnaire} />
         </div>
         <Footer {...footerProps} />
       </div>
@@ -177,7 +190,8 @@ function AppContent() {
       <div className="min-h-screen flex flex-col">
         <Navbar {...navProps} showHomeButton={true} />
         <div className="flex-1">
-          <HowItWorksPage />
+          {/* Bug fix #2: pass handleStartQuestionnaire so CTA button works */}
+          <HowItWorksPage onStartAssessment={handleStartQuestionnaire} />
         </div>
         <Footer {...footerProps} />
       </div>

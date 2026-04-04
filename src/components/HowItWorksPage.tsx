@@ -1,7 +1,12 @@
 import React from 'react';
 import { FileText, Brain, Download, CheckCircle, Clock, Users, Shield } from 'lucide-react';
 
-export const HowItWorksPage: React.FC = () => {
+// Bug fix #2: Accept onStartAssessment so the CTA button actually navigates
+interface HowItWorksPageProps {
+  onStartAssessment?: () => void;
+}
+
+export const HowItWorksPage: React.FC<HowItWorksPageProps> = ({ onStartAssessment }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
       {/* Hero Section */}
@@ -136,7 +141,7 @@ export const HowItWorksPage: React.FC = () => {
                 </div>
                 <div className="mt-6 flex items-center text-sm text-gray-500">
                   <Brain className="w-4 h-4 mr-2" />
-                  <span>Powered by GPT-4 and nutrition science</span>
+                  <span>Powered by Llama 3 and nutrition science</span>
                 </div>
               </div>
             </div>
@@ -266,9 +271,9 @@ export const HowItWorksPage: React.FC = () => {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Brain className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">GPT-4 AI Engine</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Llama 3 AI Engine</h3>
               <p className="text-gray-600">
-                Powered by OpenAI's most advanced language model, trained on vast amounts of nutrition and health data to provide intelligent, contextual recommendations.
+                Powered by Meta's Llama 3 70B via Groq, a state-of-the-art language model trained on vast amounts of nutrition and health data to provide intelligent, contextual recommendations.
               </p>
             </div>
 
@@ -335,7 +340,7 @@ export const HowItWorksPage: React.FC = () => {
         </div>
       </div>
 
-      {/* CTA Section */}
+      {/* CTA Section — Bug fix #2: onClick now wired up */}
       <div className="py-16 bg-gradient-to-r from-blue-500 to-purple-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
@@ -344,7 +349,10 @@ export const HowItWorksPage: React.FC = () => {
           <p className="text-xl text-blue-100 mb-8">
             Experience our simple 4-step process and get your personalized nutrition plan in minutes.
           </p>
-          <button className="px-8 py-4 bg-white text-blue-600 text-lg font-semibold rounded-2xl hover:bg-gray-50 transition-all hover:scale-105 shadow-xl">
+          <button
+            onClick={onStartAssessment}
+            className="px-8 py-4 bg-white text-blue-600 text-lg font-semibold rounded-2xl hover:bg-gray-50 transition-all hover:scale-105 shadow-xl"
+          >
             Start Your Assessment Now
           </button>
         </div>
