@@ -20,7 +20,13 @@ import {
   ChevronRight,
   TrendingUp,
 } from 'lucide-react';
-import API_BASE from './config';
+import emailjs from '@emailjs/browser';
+
+// ── EmailJS Config ──
+// Sign up free at https://emailjs.com, then replace these values:
+const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID  || 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
+const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || 'YOUR_PUBLIC_KEY';
 
 // ── CUSTOM INTERACTIVE SHADER CANVAS ──
 const ShaderBackground: React.FC = () => {
@@ -192,33 +198,29 @@ function AppContent() {
     setErrorMsg('');
 
     try {
-      const res = await fetch(`${API_BASE}/api/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          subject: formData.subject,
-          message: formData.message,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to submit the form.');
-      }
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name:    formData.name,
+          from_email:   formData.email,
+          subject:      formData.subject,
+          message:      formData.message,
+          to_email:     'president@shecanfoundation.org',
+        },
+        EMAILJS_PUBLIC_KEY
+      );
 
       setSubmittedData({
-        name: formData.name,
-        email: formData.email,
+        name:    formData.name,
+        email:   formData.email,
         subject: formData.subject,
       });
 
       setIsSubmitted(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
-      
-      // Smooth scroll to success modal
+
+      // Smooth scroll to success card
       setTimeout(() => {
         if (formSectionRef.current) {
           formSectionRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -226,7 +228,7 @@ function AppContent() {
       }, 100);
 
     } catch (err: any) {
-      setErrorMsg(err.message || 'Something went wrong. Please try again.');
+      setErrorMsg('Failed to send message. Please try again or email us directly at president@shecanfoundation.org');
     } finally {
       setIsSubmitting(false);
     }
