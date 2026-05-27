@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import logoImg from '/logo.png';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -398,7 +399,7 @@ function AppContent() {
                   whileHover={{ y: -8, scale: 1.02 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 >
-                  <img src="/logo.png" alt="She Can! Foundation Silhouette Logo" className="w-full h-full object-cover rounded-2xl" />
+                  <img src={logoImg} alt="She Can! Foundation Silhouette Logo" className="w-full h-full object-cover rounded-2xl" />
                 </motion.div>
               </div>
             </motion.div>

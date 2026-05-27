@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  base: '/She-Can-Org/',
   plugins: [react()],
   server: {
     proxy: {
