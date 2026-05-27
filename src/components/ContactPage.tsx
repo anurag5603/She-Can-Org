@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Mail, Send, Clock, MessageSquare, CheckCircle, Heart, ArrowLeft, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import API_BASE from '../config';
+import emailjs from '@emailjs/browser';
+
+const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID  || 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
+const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || 'YOUR_PUBLIC_KEY';
 
 export const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -25,27 +29,28 @@ export const ContactPage: React.FC = () => {
     setErrorMsg('');
 
     try {
-      const res = await fetch(`${API_BASE}/api/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to send message');
-      }
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name:  formData.name,
+          from_email: formData.email,
+          subject:    formData.subject,
+          message:    formData.message,
+          to_email:   'president@shecanfoundation.org',
+        },
+        EMAILJS_PUBLIC_KEY
+      );
 
       setSubmittedData({
-        name: formData.name,
-        email: formData.email,
+        name:    formData.name,
+        email:   formData.email,
         subject: formData.subject,
       });
       setIsSubmitted(true);
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (err: any) {
-      setErrorMsg(err.message || 'Something went wrong. Please try again.');
+      setErrorMsg('Failed to send message. Please try again or email us at president@shecanfoundation.org');
     } finally {
       setIsSubmitting(false);
     }
