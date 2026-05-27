@@ -1,13 +1,13 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Heart, Shield, Sparkles, ArrowRight } from 'lucide-react';
+import { Heart, Shield, Sparkles, ArrowRight, Lock } from 'lucide-react';
 
 interface LoginPageProps {
   onBack: () => void;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, signInDemo } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState('');
 
@@ -22,13 +22,24 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
     }
   };
 
+  const handleDemoSignIn = async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      await signInDemo();
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in with Demo Account');
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-violet-100 flex flex-col">
       {/* Minimal Header */}
       <div className="p-6">
         <button
           onClick={onBack}
-          className="flex items-center text-gray-500 hover:text-emerald-600 transition-colors group"
+          className="flex items-center text-gray-500 hover:text-pink-600 transition-colors group"
         >
           <ArrowRight className="w-4 h-4 mr-2 rotate-180 group-hover:-translate-x-1 transition-transform" />
           Back to Home
@@ -40,13 +51,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
         <div className="w-full max-w-lg">
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
             {/* Top Gradient Banner */}
-            <div className="bg-gradient-to-r from-emerald-500 to-blue-600 px-8 py-10 text-center">
+            <div className="bg-gradient-to-r from-pink-500 via-rose-500 to-violet-600 px-8 py-10 text-center">
               <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-5">
                 <Heart className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-white mb-2">Welcome to NutriPlan AI</h1>
-              <p className="text-emerald-100 text-sm">
-                Sign in to get your personalized nutrition plan
+              <h1 className="text-2xl font-bold text-white mb-2">She Can Admin Portal</h1>
+              <p className="text-pink-100 text-sm">
+                Sign in to review foundation submissions
               </p>
             </div>
 
@@ -58,14 +69,24 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
                 </div>
               )}
 
+              {/* Demo Sign-In Button */}
+              <button
+                onClick={handleDemoSignIn}
+                disabled={isLoading}
+                className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-2xl hover:from-pink-600 hover:to-rose-700 transition-all hover:scale-[1.02] shadow-lg shadow-rose-200 group disabled:opacity-60 disabled:cursor-not-allowed mb-4 font-semibold"
+              >
+                <Lock className="w-5 h-5 mr-3" />
+                <span>Try Demo Admin Login</span>
+              </button>
+
               {/* Google Sign-In Button */}
               <button
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center px-6 py-4 bg-white border-2 border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50 transition-all hover:shadow-lg group disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center px-6 py-4 bg-white border-2 border-gray-200 rounded-2xl hover:border-gray-300 hover:bg-gray-50 transition-all group disabled:opacity-60 disabled:cursor-not-allowed text-gray-700 font-semibold"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-gray-300 border-t-emerald-500 rounded-full animate-spin mr-3" />
+                  <div className="w-5 h-5 border-2 border-gray-300 border-t-pink-500 rounded-full animate-spin mr-3" />
                 ) : (
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                     <path
@@ -86,38 +107,36 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
                     />
                   </svg>
                 )}
-                <span className="text-gray-700 font-semibold text-base">
-                  {isLoading ? 'Connecting...' : 'Continue with Google'}
-                </span>
+                <span>Continue with Google</span>
               </button>
 
               {/* Divider */}
               <div className="my-6 flex items-center">
                 <div className="flex-1 h-px bg-gray-200" />
-                <span className="px-4 text-xs text-gray-400 font-medium uppercase">Why sign in?</span>
+                <span className="px-4 text-xs text-gray-400 font-medium uppercase">Admin Perks</span>
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
 
               {/* Benefits */}
               <div className="space-y-3">
-                <div className="flex items-center p-3 bg-emerald-50 rounded-xl">
-                  <Sparkles className="w-5 h-5 text-emerald-600 mr-3 flex-shrink-0" />
-                  <span className="text-sm text-emerald-800">Get a personalized 7-day nutrition plan</span>
+                <div className="flex items-center p-3 bg-pink-50 rounded-xl">
+                  <Sparkles className="w-5 h-5 text-pink-600 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-pink-800">Review all form submissions in real-time</span>
                 </div>
-                <div className="flex items-center p-3 bg-blue-50 rounded-xl">
-                  <Shield className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" />
-                  <span className="text-sm text-blue-800">Your data stays private and secure</span>
+                <div className="flex items-center p-3 bg-violet-50 rounded-xl">
+                  <Shield className="w-5 h-5 text-violet-600 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-violet-800">Mark submissions read/unread & delete entries</span>
                 </div>
-                <div className="flex items-center p-3 bg-purple-50 rounded-xl">
-                  <Heart className="w-5 h-5 text-purple-600 mr-3 flex-shrink-0" />
-                  <span className="text-sm text-purple-800">Save and revisit your plans anytime</span>
+                <div className="flex items-center p-3 bg-rose-50 rounded-xl">
+                  <Heart className="w-5 h-5 text-rose-600 mr-3 flex-shrink-0" />
+                  <span className="text-sm text-rose-800">Direct email reply integration</span>
                 </div>
               </div>
             </div>
           </div>
 
           <p className="text-center text-gray-400 text-xs mt-6">
-            By signing in, you agree to our terms of service and privacy policy.
+            Authorized admin personnel only. Submission details are protected under standard privacy guidelines.
           </p>
         </div>
       </div>

@@ -18,6 +18,7 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInDemo: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -80,13 +81,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
+    // Check if there is a saved demo session first
+    const savedDemo = localStorage.getItem('demo_session');
+    if (savedDemo) {
+      try {
+        const { mockSession, mockUser } = JSON.parse(savedDemo);
+        setSession(mockSession);
+        setUser(mockUser);
+        setIsLoading(false);
+        return;
+      } catch (e) {
+        localStorage.removeItem('demo_session');
+      }
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      handleSession(session);
+      // Only set session if we aren't in a demo state
+      if (!localStorage.getItem('demo_session')) {
+        handleSession(session);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        handleSession(session);
+        if (!localStorage.getItem('demo_session')) {
+          handleSession(session);
+        }
       }
     );
 
@@ -106,14 +126,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInDemo = async () => {
+    setIsLoading(true);
+    const mockUser: AuthUser = {
+      id: 'demo-admin-id',
+      email: ADMIN_EMAIL,
+      name: 'Demo Admin',
+      avatarUrl: '',
+      isAdmin: true,
+    };
+
+    const mockSession: Session = {
+      access_token: 'demo-admin-token',
+      token_type: 'bearer',
+      expires_in: 3600,
+      refresh_token: 'demo-refresh-token',
+      user: {
+        id: 'demo-admin-id',
+        aud: 'authenticated',
+        role: 'authenticated',
+        email: ADMIN_EMAIL,
+        user_metadata: {
+          full_name: 'Demo Admin',
+        },
+        app_metadata: {},
+        created_at: new Date().toISOString(),
+      } as any,
+    };
+
+    setSession(mockSession);
+    setUser(mockUser);
+
+    // Register on the server
+    await registerUserOnServer(mockUser, 'demo-admin-token');
+
+    // Save locally
+    localStorage.setItem('demo_session', JSON.stringify({ mockSession, mockUser }));
+    setIsLoading(false);
+  };
+
   const signOut = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('demo_session');
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      // Ignore if supabase is not initialized
+    }
     setUser(null);
     setSession(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, session, isLoading, signInWithGoogle, signInDemo, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,5 +14,13 @@
     "avatarUrl": "https://lh3.googleusercontent.com/a/ACg8ocJhr1YOkTyiHLp8SwMM4C1FPOVOB5gkZonDIvKv0_klDfLaMA=s96-c",
     "registeredAt": "2026-04-01T06:59:06.058Z",
     "lastLogin": "2026-04-01T06:59:06.223Z"
+  },
+  {
+    "id": "demo-admin-id",
+    "email": "contact.manager5603@gmail.com",
+    "name": "Demo Admin",
+    "avatarUrl": "",
+    "registeredAt": "2026-05-27T08:09:30.111Z",
+    "lastLogin": "2026-05-27T08:33:54.800Z"
   }
 ]

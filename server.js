@@ -27,8 +27,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!GROQ_API_KEY) {
-  console.error('ERROR: GROQ_API_KEY is not set');
-  process.exit(1);
+  console.warn('⚠️ WARNING: GROQ_API_KEY is not set. Groq endpoints will not work.');
 }
 
 // Initialize Supabase admin client (service role for token verification)
@@ -65,16 +64,26 @@ function writeUsers(users) { writeJSON(USERS_FILE, users); }
 
 // ── AUTH MIDDLEWARE ──
 async function requireAuth(req, res, next) {
-  if (!supabaseAdmin) {
-    return res.status(503).json({ error: 'Auth service not configured' });
-  }
-
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing or invalid authorization header' });
   }
 
   const token = authHeader.replace('Bearer ', '');
+
+  // ── Support Mock Demo Token ──
+  if (token === 'demo-admin-token') {
+    req.user = {
+      id: 'demo-admin-id',
+      email: ADMIN_EMAIL,
+      user_metadata: { full_name: 'Demo Admin' },
+    };
+    return next();
+  }
+
+  if (!supabaseAdmin) {
+    return res.status(503).json({ error: 'Auth service not configured' });
+  }
 
   try {
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);

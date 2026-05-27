@@ -12,4 +12,12 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        contact: './contact.html',
+      },
+    },
+  },
 });
